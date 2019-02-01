@@ -1,0 +1,20 @@
+[package]
+name = "dist-data"
+version = "0.1.0"
+authors = ["Walter Pearce <jaynus@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+capnp = { path = "../../capnproto-rust/capnp", features = ["rpc_try"] }
+redis = { path = "../redis-rs", features = ["with-unix-sockets"] }
+dist-macro = { path = "../dist-macro" }
+failure = "*"
+derive_more = "*"
+log = "*"
+
+[build-dependencies]
+capnpc = { path = "../../capnproto-rust/capnpc" }
+
+
+[lib]
+path = "src/lib.rs"
