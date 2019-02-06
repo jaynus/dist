@@ -3,7 +3,6 @@
 members = [
     "dist-test",
     "dist-data",
-    "dist-macro",
     "redis-rs",
-    "dist-router",
+    "dist-services",
 ]

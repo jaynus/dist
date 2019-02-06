@@ -1,0 +1,34 @@
+[package]
+name = "dist-services"
+version = "0.1.0"
+authors = ["Walter Pearce <jaynus@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+dist-data = { path = "../dist-data" }
+
+failure = "*"
+derive_more = "*"
+slog = "*"
+
+futures-preview = { version = "0.3.0-alpha.12", features = ["compat", "tokio-compat"] }
+
+romio = "0.3.0-alpha.1"
+serde = { version = "1.0", features = ["rc"] }
+tarpc = { git = "https://github.com/google/tarpc.git", features = ["serde1"] }
+#romio-bincode-transport = { path = "../../romio-bincode-transport" }
+tarpc-bincode-transport = { git = "https://github.com/google/tarpc.git" }
+
+tokio = "*"
+tokio-executor = "*"
+tokio-tcp = "*"
+log = "*"
+
+[build-dependencies]
+capnpc = { path = "../../capnproto-rust/capnpc" }
+
+[dev-dependencies]
+env_logger = "*"
+
+[lib]
+path = "src/lib.rs"

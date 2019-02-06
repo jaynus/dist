@@ -5,17 +5,9 @@ authors = ["Walter Pearce <jaynus@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-capnp = { path = "../../capnproto-rust/capnp", features = ["rpc_try"] }
-capnp-rpc = { path = "../../capnproto-rust/capnp-rpc" }
-tokio = { version = "*", features = ["async-await-preview"] }
-tokio-async-await = "*"
-futures = "0.1.25"
-crossbeam-channel = "*"
-log = "*"
-env_logger = "*"
 
 dist-data = { path = "../dist-data" }
-dist-router = { path = "../dist-router" }
+dist-services = { path = "../dist-services" }
 
 [[bin]]
 name = "dist-test"

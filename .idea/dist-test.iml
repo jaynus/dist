@@ -22,13 +22,17 @@
       <sourceFolder url="file://$MODULE_DIR$/redis-rs/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/redis-rs/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/redis-rs/benches" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/dist-router/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/dist-services/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/dist-router/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/dist-router/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/dist-router/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/dist-services/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/dist-services/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/dist-services/benches" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/dist-data/target" />
       <excludeFolder url="file://$MODULE_DIR$/dist-macro/target" />
       <excludeFolder url="file://$MODULE_DIR$/dist-router/target" />
+      <excludeFolder url="file://$MODULE_DIR$/dist-services/target" />
       <excludeFolder url="file://$MODULE_DIR$/dist-test/target" />
       <excludeFolder url="file://$MODULE_DIR$/redis-rs/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
