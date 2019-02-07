@@ -1,8 +1,7 @@
 macro_rules! bootstrap_remote_client {
     () => {
-        pub async fn bootstrap_client(connection_string: &str, config: tarpc::client::Config) -> ::std::io::Result<Client> {
-            let c_str = &connection_string.parse().unwrap();
-            let transport = await!(tarpc_bincode_transport::connect(c_str))?;
+        pub async fn bootstrap_client(address: &std::net::SocketAddr, config: tarpc::client::Config) -> ::std::io::Result<Client> {
+            let transport = await!(tarpc_bincode_transport::connect(address))?;
             let client = await!(new_stub(config, transport))?;
             Ok(client)
         }
@@ -10,13 +9,13 @@ macro_rules! bootstrap_remote_client {
         #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
         pub struct RemoteInfo {
             id: u64,
-            connection_string: String,
+            address: std::net::SocketAddr,
         }
         impl RemoteInfo {
-            pub fn new(id: u64, connection_string: &str) -> Self {
+            pub fn new(id: u64, address: &std::net::SocketAddr) -> Self {
                 Self {
                     id,
-                    connection_string: connection_string.to_string(),
+                    address: address.clone(),
                 }
             }
         }
@@ -29,7 +28,7 @@ macro_rules! bootstrap_remote_client {
         }
         impl Remote {
             pub async fn bootstrap(info: Arc<RemoteInfo>, ) -> std::io::Result<Self> {
-                let client = await!(bootstrap_client(&info.connection_string, tarpc::client::Config::default()))?;
+                let client = await!(bootstrap_client(&info.address, tarpc::client::Config::default()))?;
                 Ok(Self {
                     info,
                     client: Some(client),

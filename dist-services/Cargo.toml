@@ -9,7 +9,14 @@ dist-data = { path = "../dist-data" }
 
 failure = "*"
 derive_more = "*"
-slog = "*"
+
+#slog = "*"
+#slog-term = "*"
+#slog-scope = "*"
+#slog-stdlog = "*"
+#slog-async = "*"
+
+env_logger = "*"
 
 futures-preview = { version = "0.3.0-alpha.12", features = ["compat", "tokio-compat"] }
 
@@ -28,7 +35,7 @@ log = "*"
 capnpc = { path = "../../capnproto-rust/capnpc" }
 
 [dev-dependencies]
-env_logger = "*"
+
 
 [lib]
 path = "src/lib.rs"

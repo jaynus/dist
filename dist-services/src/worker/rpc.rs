@@ -5,6 +5,8 @@ use std::sync::{Arc, RwLock};
 use super::State;
 use crate::Status;
 
+use log::trace;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WorkerRegisterError;
 
@@ -22,9 +24,9 @@ pub struct Server {
     state: Arc<RwLock<State>>,
 }
 impl Server {
-    pub fn new() -> Self {
+    pub fn new(state: Arc<RwLock<State>>) -> Self {
         Self {
-            state: Arc::new(RwLock::new(State::new())),
+            state,
         }
     }
 }
@@ -35,16 +37,19 @@ impl Service for Server {
 
     type StatusFut = Ready<Status>;
     fn status(self, _: context::Context) -> Self::StatusFut {
+        println!("worker_service::status()");
         ready(Ok(()))
     }
 
     type BeginFut = Ready<()>;
     fn begin(self, _: context::Context) -> Self::BeginFut {
+        println!("worker_service::begin()");
         ready(())
     }
 
     type TerminateFut = Ready<()>;
     fn terminate(self, _: context::Context) -> Self::TerminateFut {
+        println!("worker_service::terminate()");
         ready(())
     }
 }
