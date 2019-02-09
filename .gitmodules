@@ -1,0 +1,6 @@
+[submodule "redis-rs"]
+	path = redis-rs
+	url = git@github.com:jaynus/redis-rs.git
+[submodule "flatbuffers"]
+	path = flatbuffers
+	url = git@github.com:jaynus/flatbuffers.git
