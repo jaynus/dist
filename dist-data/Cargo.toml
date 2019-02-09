@@ -9,10 +9,9 @@ redis = { path = "../redis-rs", features = ["with-unix-sockets"] }
 failure = "*"
 derive_more = "*"
 log = "*"
-
-[build-dependencies]
-capnpc = { path = "../../capnproto-rust/capnpc" }
-
+serde = "^1.0.63"
+serde_derive = "*"
+bincode = "*"
 
 [lib]
 path = "src/lib.rs"

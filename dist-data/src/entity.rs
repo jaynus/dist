@@ -1,33 +1,64 @@
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Id {
-    pub id: u64,
+    pub raw: u64,
 }
 impl Id {
     #[inline]
-    pub fn new(id: u64) -> Self {
-        Self { id }
+    pub fn new(raw: u64) -> Self {
+        Self { raw }
     }
 }
 impl From<u64> for Id {
     #[inline]
-    fn from(id: u64) -> Self {
-        Id { id }
+    fn from(raw: u64) -> Self {
+        Id { raw }
     }
 }
 impl From<Id> for u64 {
     #[inline]
     fn from(id: Id) -> Self {
-        id.id
+        id.raw
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub struct Entity {
-    id: Id,
-    components: Vec<Id>,
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct ComponentRef {
+    id:        Id,
+    parent:    Id,
+    type_id:   Id,
 }
-impl Entity {
-    pub fn new(id: Id, components: Vec<Id>) -> Self {
+impl ComponentRef {
+    pub fn new(id: Id, parent: Id, type_id: Id) -> Self {
+        Self {
+            id,
+            parent,
+            type_id
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default,  Serialize, Deserialize)]
+pub struct EntityRef {
+    id: Id,
+    components: Vec<ComponentRef>,
+}
+impl PartialEq<EntityRef> for EntityRef {
+    #[inline]
+    fn eq(&self, rhv: &EntityRef) -> bool {
+        self.id == rhv.id
+    }
+}
+
+impl EntityRef {
+    pub fn new(id: Id) -> Self {
+        Self {
+            id,
+            components: Vec::new(),
+        }
+    }
+    pub fn with_components(id: Id, components: Vec<ComponentRef>) -> Self {
         Self {
             id,
             components
@@ -40,18 +71,17 @@ impl Entity {
     }
 
     #[inline]
-    pub fn components(&self) -> &[Id] {
+    pub fn components(&self) -> &[ComponentRef] {
         self.components.as_slice()
     }
 
     #[inline]
-    pub fn components_mut(&mut self) -> &mut [Id] {
+    pub fn components_mut(&mut self) -> &mut [ComponentRef] {
         self.components.as_mut_slice()
     }
 
     #[inline]
-    pub fn components_mut_vec(&mut self) -> &mut Vec<Id> {
+    pub fn components_mut_vec(&mut self) -> &mut Vec<ComponentRef> {
         &mut self.components
     }
 }
-

@@ -7,14 +7,30 @@ use crate::Status;
 
 use log::{error, trace};
 
+trait RpcError: core::fmt::Debug {
+
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WorkerRegisterError;
+
+impl From<WorkerRegisterError> for std::io::Error
+{
+    fn from(rhv: WorkerRegisterError) -> Self {
+        rhv.into()
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct WorkerRegisterResponse {
+    pub id: u64,
+}
 
 tarpc::service! {
     /// Returns a greeting for name.
     rpc status() -> crate::Status;
 
-    rpc register_worker(address: std::net::SocketAddr) -> Result<crate::worker::rpc::RemoteInfo, WorkerRegisterError>;
+    rpc register_worker(address: std::net::SocketAddr) -> Result<WorkerRegisterResponse, WorkerRegisterError>;
 }
 bootstrap_remote_client!();
 
@@ -33,19 +49,21 @@ impl Server {
 impl Service for Server {
     type StatusFut = Ready<Status>;
     fn status(self, _: context::Context) -> Self::StatusFut {
-        println!("router_service::status()");
+        trace!("router_service::status()");
         ready(Ok(()))
     }
 
-    type RegisterWorkerFut = Ready<Result<crate::worker::rpc::RemoteInfo, WorkerRegisterError>>;
+    type RegisterWorkerFut = Ready<Result<WorkerRegisterResponse, WorkerRegisterError>>;
     fn register_worker(self, _: context::Context, address: std::net::SocketAddr) -> Self::RegisterWorkerFut {
-        println!("router_service::register_worker()");
+        trace!("router_service::register_worker()");
         let id: u64;
         {
-            let workers = &self.state.read().unwrap().workers;
-            id = workers.len() as u64;
+            use std::sync::atomic::{Ordering};
+            let id_increment = &self.state.read().unwrap().id_increment;
+            let prev_id = id_increment.fetch_add(1, Ordering::SeqCst);
+            id = prev_id + 1;
         }
-        let info = crate::worker::rpc::RemoteInfo::new(id, &address);
+        let info = crate::worker::rpc::RemoteInfo::new(&address);
         let info_ref = Arc::new(info.clone());
         let info_ref_2 = info_ref.clone();
 
@@ -60,7 +78,7 @@ impl Service for Server {
             match await!(remote.client().status(context::current()))? {
                 Ok(()) => {
                     let workers = &mut state_clone.write().unwrap().workers;
-                    workers.push(remote);
+                    workers.push(super::WorkerInfo::new(id, remote));
                 },
                 Err(e) => {
                     error!("RemoteWorker status failed: {}, dropping and calling terminate", e);
@@ -73,6 +91,8 @@ impl Service for Server {
             .boxed()
             .compat());
 
-        ready(Ok(info))
+        ready(Ok(WorkerRegisterResponse {
+            id,
+        }))
     }
 }

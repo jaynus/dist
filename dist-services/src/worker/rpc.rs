@@ -8,14 +8,18 @@ use crate::Status;
 use log::trace;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct WorkerRegisterError;
+pub struct WorkerError;
+
+use dist_data::{ComponentRef};
 
 tarpc::service! {
-    /// Returns a greeting for name.
     rpc status() -> Status;
 
     rpc begin();
     rpc terminate();
+
+   // rpc assign_entity() -> Result<()>;
+   rpc assign_components(ids: Vec<ComponentRef>) -> Result<(), WorkerError>;
 }
 bootstrap_remote_client!();
 
@@ -37,19 +41,29 @@ impl Service for Server {
 
     type StatusFut = Ready<Status>;
     fn status(self, _: context::Context) -> Self::StatusFut {
-        println!("worker_service::status()");
+        trace!("worker_service::status()");
         ready(Ok(()))
     }
 
     type BeginFut = Ready<()>;
     fn begin(self, _: context::Context) -> Self::BeginFut {
-        println!("worker_service::begin()");
+        trace!("worker_service::begin()");
         ready(())
     }
 
     type TerminateFut = Ready<()>;
     fn terminate(self, _: context::Context) -> Self::TerminateFut {
-        println!("worker_service::terminate()");
+        trace!("worker_service::terminate()");
         ready(())
+    }
+
+    type AssignComponentsFut = Ready<Result<(), WorkerError>>;
+    fn assign_components(self, _: context::Context, ids: Vec<ComponentRef>) -> Self::AssignComponentsFut {
+        trace!("worker_service::assign_components()");
+
+        self.state.write().unwrap().local_components.extend(ids);
+        // TODO: trigger entity assignment event
+
+        ready(Ok(()))
     }
 }

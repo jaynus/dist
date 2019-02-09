@@ -1,8 +1,10 @@
 #![allow(unused)]
+#![feature(type_alias_enum_variants)]
 
-#![feature(test)]
-extern crate test;
+#[macro_use]
+extern crate serde_derive;
 
+use bincode::{serialize, deserialize};
 use derive_more::From;
 use failure::Fail;
 
@@ -12,7 +14,7 @@ use log::trace;
 mod entity;
 
 pub use crate::{
-    entity::{Entity, Id}
+    entity::{EntityRef, ComponentRef, Id}
 };
 
 #[derive(Debug, Fail, From)]
@@ -25,15 +27,19 @@ pub enum AdapterError {
 
     #[fail(display = "{}", _0)]
     IoError(std::io::Error),
+
+    #[fail(display = "{}", _0)]
+    BincodeError(std::boxed::Box<bincode::ErrorKind>),
 }
+
+
 type AdapterResult<T> = Result<T, AdapterError>;
 
 trait Adapter {
-    fn get_entity(&self, id: u64) -> AdapterResult<Option<Entity>>;
-    fn get_component(&self, id: u64) -> AdapterResult<Option<Vec<u8>>>;
-
-    fn commit_entity(&self, entity: &Entity) -> AdapterResult<()>;
+    fn commit<T>(&self, id: Id, obj: &T) -> AdapterResult<()> where T: serde::Serialize;
     //fn commit_component(id: u64, component: T) -> AdapterResult<()>;
+
+    fn get<T>(&self, id: Id) -> AdapterResult<Option<T>> where T: serde::de::DeserializeOwned;
 }
 
 pub struct RedisAdapter {
@@ -54,25 +60,27 @@ impl RedisAdapter {
 }
 
 impl Adapter for RedisAdapter {
-    fn get_entity(&self, id: u64) -> AdapterResult<Option<Entity>> {
+    fn get<T>(&self, id: Id) -> AdapterResult<Option<T>>
+        where T: serde::de::DeserializeOwned
+    {
         use redis::Commands;
         use std::io::Cursor;
 
-        trace!("Getting entity: {}", id);
-
-        Ok(None)
-
+        match self.connection.get::<Vec<u8>, Vec<u8>>(serialize(&id)?) {
+            Ok(v) => {
+                Ok(Some(deserialize(&v)?))
+            },
+            Err(e) => Err(AdapterError::RedisError(e))
+        }
     }
-    fn get_component(&self, id: u64) -> AdapterResult<Option<Vec<u8>>> {
-        Ok(None)
-    }
 
-    fn commit_entity(&self, entity: &Entity) -> AdapterResult<()> {
+    fn commit<T>(&self, id: Id, obj: &T) -> AdapterResult<()>
+        where T: serde::Serialize
+    {
         use redis::Commands;
         use std::io::Cursor;
 
-        trace!("Commiting entity: {}", entity.id().id);
-
+        self.connection.set::<Vec<u8>, Vec<u8>, Vec<u8>>(serialize(&id)?, serialize(&obj)?)?;
 
         Ok(())
     }
@@ -80,17 +88,16 @@ impl Adapter for RedisAdapter {
 
 mod tests {
     use super::*;
-    use test::Bencher;
 
     #[test]
     fn redis_adapter_test() {
         let adapter = RedisAdapter::new("redis://172.17.0.2:7000/").unwrap();
 
-        let test_entity = Entity::new(12345.into(), vec![8.into(), 9.into(), 10.into()]);
+        let test_entity = EntityRef::new(12345.into());
 
-        adapter.commit_entity(&test_entity);
+        adapter.commit(test_entity.id(), &test_entity);
 
-        let read_entity = adapter.get_entity(test_entity.id().into()).unwrap().unwrap();
+        let read_entity: EntityRef = adapter.get(test_entity.id().into()).unwrap().unwrap();
 
         assert_eq!(read_entity.id(), test_entity.id());
     }

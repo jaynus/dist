@@ -8,13 +8,11 @@ macro_rules! bootstrap_remote_client {
 
         #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]
         pub struct RemoteInfo {
-            id: u64,
             address: std::net::SocketAddr,
         }
         impl RemoteInfo {
-            pub fn new(id: u64, address: &std::net::SocketAddr) -> Self {
+            pub fn new(address: &std::net::SocketAddr) -> Self {
                 Self {
-                    id,
                     address: address.clone(),
                 }
             }
@@ -44,7 +42,7 @@ macro_rules! bootstrap_remote_client {
             }
         }
         impl PartialEq<Remote> for Remote {
-            fn eq(&self, other: &Remote) -> bool {
+            fn eq(&self, other: &Self) -> bool {
                 other.info == self.info
             }
         }
