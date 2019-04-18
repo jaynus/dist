@@ -13,6 +13,7 @@ pub mod worker;
 use failure::{Fail};
 use serde::{Serialize, Deserialize};
 
+
 #[derive(Clone, Fail, Debug, Serialize, Deserialize)]
 #[fail(display = "my wrapping error")]
 pub enum StatusError {

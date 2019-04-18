@@ -24,18 +24,20 @@ tarpc::service! {
 bootstrap_remote_client!();
 
 #[derive(Clone)]
-pub struct Server {
-    state: Arc<RwLock<State>>,
+pub struct Server<T> {
+    state: Arc<RwLock<State<T>>>,
 }
-impl Server {
-    pub fn new(state: Arc<RwLock<State>>) -> Self {
+impl<T> Server<T> {
+    pub fn new(state: Arc<RwLock<State<T>>>) -> Self {
         Self {
             state,
         }
     }
 }
 
-impl Service for Server {
+impl<T> Service for Server<T>
+    where T: super::consumer::Worker + Clone + Send + Sync + 'static
+{
     // Each defined rpc generates two items in the trait, a fn that serves the RPC, and
     // an associated type representing the future output by the fn.
 
@@ -48,6 +50,9 @@ impl Service for Server {
     type BeginFut = Ready<()>;
     fn begin(self, _: context::Context) -> Self::BeginFut {
         trace!("worker_service::begin()");
+
+        self.state.write().unwrap().consumer.initialize();
+
         ready(())
     }
 

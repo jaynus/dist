@@ -2,6 +2,7 @@
 
 members = [
     "dist-test",
+    "dist-gen",
     "dist-data",
     "redis-rs",
     "dist-services",

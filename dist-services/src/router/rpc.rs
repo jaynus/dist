@@ -86,6 +86,8 @@ impl Service for Server {
                 }
             }
 
+            trace!("Worker registration complete");
+
             Ok(())
         }().map_err(|e| error!("Finalizing worker registration failed: {}", e))
             .boxed()

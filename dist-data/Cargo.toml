@@ -13,5 +13,8 @@ serde = "^1.0.63"
 serde_derive = "*"
 bincode = "*"
 
+[build-dependencies]
+dist-gen = { path = "../dist-gen" }
+
 [lib]
 path = "src/lib.rs"

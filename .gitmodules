@@ -4,3 +4,6 @@
 [submodule "flatbuffers"]
 	path = flatbuffers
 	url = git@github.com:jaynus/flatbuffers.git
+[submodule "flatc-rust"]
+	path = flatc-rust
+	url = git@github.com:jaynus/flatc-rust.git

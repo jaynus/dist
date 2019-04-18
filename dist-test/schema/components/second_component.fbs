@@ -1,0 +1,9 @@
+include "base_component.fbs";
+
+table SecondComponent {
+    base:dist.BaseComponent;
+    name:string;
+    damage:short;
+}
+
+root_type SecondComponent;

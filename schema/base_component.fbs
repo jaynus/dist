@@ -1,0 +1,7 @@
+namespace dist;
+
+table BaseComponent {
+    id:ulong;
+}
+
+root_type BaseComponent;

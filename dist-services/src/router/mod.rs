@@ -58,10 +58,10 @@ impl State {
     }
 }
 
-pub async fn new() -> std::io::Result<Service> {
+pub async fn new(config: Config) -> std::io::Result<Service> {
     let state =  Arc::new(RwLock::new(State::new()));
 
-    let transport = tarpc_bincode_transport::listen(&"0.0.0.0:0".parse().unwrap())?;
+    let transport = tarpc_bincode_transport::listen(&config.listen_address.parse().unwrap())?;
     let address = transport.local_addr();
     trace!("router: Listening: {}", address);
 
@@ -77,6 +77,12 @@ pub async fn new() -> std::io::Result<Service> {
         address,
     })
 }
+
+#[derive(Default, Debug, serde::Serialize, serde::Deserialize)]
+pub struct Config {
+    listen_address: String,
+}
+
 
 #[derive(Clone)]
 pub struct Service {
@@ -96,5 +102,43 @@ impl Future for Service {
         // Run continously
         lw.wake();
         Poll::Pending
+    }
+}
+
+pub mod consumer {
+    pub fn load_config() -> Result<super::Config, config::ConfigError> {
+        let mut config = config::Config::new();
+
+        config.merge(config::File::with_name("RouterConfig.toml"));
+        config.merge(config::Environment::with_prefix("DIST"))?;
+        config.merge(config::Environment::with_prefix("DIST_ROUTER"))?;
+
+        config.try_into()
+    }
+
+    async fn internal_run(config: super::Config) -> std::io::Result<()> {
+        let service = await!(super::new(config))?;
+
+        await!(service);
+
+        Ok(())
+    }
+
+    pub fn run(config: super::Config) -> std::io::Result<()> {
+        use futures::compat::TokioDefaultSpawner;
+        use futures::future::{TryFutureExt, FutureExt};
+
+        // Spin up a service for this worker
+        tarpc::init(TokioDefaultSpawner);
+
+        println!("Initializing router");
+
+        tokio::run(
+            internal_run(config)
+                .map_err(|e| eprintln!("Oh no: {}", e))
+                .boxed()
+                .compat(),
+        );
+        Ok(())
     }
 }

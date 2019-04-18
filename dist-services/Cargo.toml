@@ -20,8 +20,9 @@ env_logger = "*"
 
 futures-preview = { version = "0.3.0-alpha.12", features = ["compat", "tokio-compat"] }
 pin-utils = "0.1.0-alpha.4"
-romio = "0.3.0-alpha.1"
 serde = { version = "^1.0.63", features = ["rc"] }
+
+# Migrate tarpc to grpc
 tarpc = { git = "https://github.com/google/tarpc.git", features = ["serde1"] }
 #romio-bincode-transport = { path = "../../romio-bincode-transport" }
 tarpc-bincode-transport = { git = "https://github.com/google/tarpc.git" }
@@ -30,6 +31,8 @@ tokio = "*"
 tokio-executor = "*"
 tokio-tcp = "*"
 log = "*"
+
+config = "*"
 
 nalgebra = { version = "*", features = ["serde-serialize"] }
 

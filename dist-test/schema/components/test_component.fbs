@@ -1,0 +1,9 @@
+include "base_component.fbs";
+
+table TestComponent {
+    base:dist.BaseComponent;
+    name:string;
+    damage:short;
+}
+
+root_type TestComponent;

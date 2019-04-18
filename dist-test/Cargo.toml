@@ -5,9 +5,15 @@ authors = ["Walter Pearce <jaynus@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-
 dist-data = { path = "../dist-data" }
 dist-services = { path = "../dist-services" }
+flatbuffers = { path = "../flatbuffers/rust/flatbuffers" }
+failure = "*"
+log = "*"
+env_logger = "*"
+
+[build-dependencies]
+dist-gen = { path = "../dist-gen" }
 
 [[bin]]
 name = "dist-test"
